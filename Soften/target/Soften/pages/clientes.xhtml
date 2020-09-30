@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:p="http://primefaces.org/ui">
+<h:head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>Clientes</title>
+	<h:outputScript name="javascript.js" library="js"></h:outputScript>
+	<script type="text/javascript" src="js/jquery-1.3.2.js"></script>
+	<script type="text/javascript" src="js/maskedinput-1.1.2.pack.js"></script>
+</h:head>
+<h:body>
+
+	<p:growl id="mensagem" />
+
+	<h:form id="formLista">
+		<p:panel header="Clientes - Listagem">
+			<p:dataTable id="tabela" emptyMessage="Nenhum registro encontrado."
+				paginator="true" value="#{clienteBean.clientes}" var="cliente"
+				rows="10" paginatorTemplate="{CurrentPageReport}
+                {FirstPageLink}
+                {PreviousPageLink} {PageLinks}
+                {NextPageLink} {LastPageLink}
+                {RowsPerPageDropdown}"
+                currentPageReportTemplate="Exibindo {endRecord} registro(s) em um total de {totalRecords}"                
+                rowsPerPageTemplate="5,10,15"
+                style="width: 100%"
+                lazy="true" paginatorPosition="bottom">
+
+				<f:facet name="header">
+					<p:commandButton value="Novo"
+						oncomplete="PF('dlgCLientes').show();"
+						actionListener="#{clienteBean.novo}"
+						update=":mensagem :formCadastro:painel">
+						<f:actionListener
+							type="org.omnifaces.eventlistener.ResetInputAjaxActionListener" />
+					</p:commandButton>
+				</f:facet>
+
+				<p:column headerText="Nome/Razão Social"
+					sortBy="#{cliente.nomeRazaoSocial}"
+					filterBy="#{cliente.nomeRazaoSocial}">
+					<h:outputText value="#{cliente.nomeRazaoSocial}" />
+				</p:column>
+
+				<p:column headerText="CPF/CNPJ" sortBy="#{cliente.cpfCnpj}"
+					filterBy="#{cliente.cpfCnpj}">
+					<h:outputText value="#{cliente.cpfCnpj}" />
+				</p:column>
+
+				<p:column headerText="Inscrição Estadual"
+					sortBy="#{cliente.inscricaoEstadual}"
+					filterBy="#{cliente.inscricaoEstadual}">
+					<h:outputText value="#{cliente.inscricaoEstadual}" />
+				</p:column>
+
+				<p:column headerText="CEP" sortBy="#{cliente.cep}"
+					filterBy="#{cliente.cep}">
+					<h:outputText value="#{cliente.cep}" />
+				</p:column>
+
+				<p:column headerText="Logradouro" sortBy="#{cliente.logradouro}"
+					filterBy="#{cliente.logradouro}">
+					<h:outputText value="#{cliente.logradouro}" />
+				</p:column>
+
+				<p:column headerText="Número" sortBy="#{cliente.numero}"
+					filterBy="#{cliente.numero}">
+					<h:outputText value="#{cliente.numero}" />
+				</p:column>
+
+				<p:column headerText="Bairro" sortBy="#{cliente.bairro}"
+					filterBy="#{cliente.bairro}">
+					<h:outputText value="#{cliente.bairro}" />
+				</p:column>
+
+				<p:column headerText="Complemento" sortBy="#{cliente.complemento}"
+					filterBy="#{cliente.complemento}">
+					<h:outputText value="#{cliente.complemento}" />
+				</p:column>
+
+				<p:column headerText="Estado" sortBy="#{cliente.estado.nome}"
+					filterBy="#{cliente.estado.nome}">
+					<h:outputText value="#{cliente.estado.nome}" />
+				</p:column>
+
+				<p:column headerText="Cidade" sortBy="#{cliente.cidade.nome}"
+					filterBy="#{cliente.cidade.nome}">
+					<h:outputText value="#{cliente.cidade.nome}" />
+				</p:column>
+
+				<p:column headerText="Opções">					
+
+					<p:commandButton icon="ui-icon-pencil"
+						actionListener="#{clienteBean.editar}"
+						update=":mensagem :formCadastro:painel"
+						oncomplete="PF('dlgCLientes').show();">
+						<f:attribute name="clienteSelecionado" value="#{cliente}" />
+						<f:actionListener
+							type="org.omnifaces.eventlistener.ResetInputAjaxActionListener" />
+					</p:commandButton>
+					
+					<p:commandButton icon="ui-icon-trash"
+						actionListener="#{clienteBean.excluir}"
+						update=":mensagem :formLista:tabela">
+						<p:confirm header="Confirmação"
+							message="Deseja excluir o cliente?" icon="ui-icon-alert" />
+						<f:attribute name="clienteSelecionado" value="#{cliente}" />
+					</p:commandButton>
+					
+				</p:column>
+				
+			</p:dataTable>
+			<p:confirmDialog global="true">
+				<p:commandButton value="Sim" type="button"
+					styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
+				<p:commandButton value="Não" type="button"
+					styleClass="ui-confirmdialog-no" icon="ui-icon-close" />
+			</p:confirmDialog>
+		</p:panel>
+	</h:form>
+
+	<p:dialog header="Clientes - Cadastro" widgetVar="dlgCLientes"
+		draggable="false" resizable="false" modal="true" closable="false">
+		<h:form id="formCadastro">
+			<h:panelGrid id="painel" columns="2">
+
+				<p:outputLabel for="nomeRazaoSocial" value="Nome/Razão Social:" />
+				<p:inputText id="nomeRazaoSocial" maxlength="60" size="30"
+					value="#{clienteBean.cliente.nomeRazaoSocial}"
+					required="true"
+					requiredMessage="Campo 'Nome/Razão Social' é de preenchimento obrigatório!" />
+
+				<p:outputLabel for="cpfCnpj" value="CPF/CNPJ:" />
+				<p:inputText id="cpfCnpj" maxlength="18" size="16"
+					value="#{clienteBean.cliente.cpfCnpj}" required="true"
+					requiredMessage="Campo 'CPF/CNPJ' é de preenchimento obrigatório!"
+					onkeypress='mascaraMutuario(this,cpfCnpj)' />
+
+				<p:outputLabel for="inscricaoEstadual" value="Inscrição Estadual:" />
+				<p:inputText id="inscricaoEstadual" maxlength="14" size="10"
+					value="#{clienteBean.cliente.inscricaoEstadual}"
+					required="true"
+					requiredMessage="Campo 'Inscrição Estadual' é de preenchimento obrigatório!" />
+
+				<p:outputLabel for="cep" value="CEP:" />
+				<p:inputText id="cep" maxlength="8" size="6"
+					value="#{clienteBean.cliente.cep}" required="true"
+					requiredMessage="Campo 'CEP' é de preenchimento obrigatório!" />
+
+				<p:outputLabel for="logradouro" value="Logradouro:" />
+				<p:inputText id="logradouro" maxlength="60" size="30"
+					value="#{clienteBean.cliente.logradouro}" required="true"
+					requiredMessage="Campo 'Logradouro' é de preenchimento obrigatório!" />
+
+				<p:outputLabel for="numero" value="Número:" />
+				<p:inputText id="numero" maxlength="6" size="6"
+					value="#{clienteBean.cliente.numero}" required="true"
+					requiredMessage="Campo 'Número' é de preenchimento obrigatório!" />
+
+				<p:outputLabel for="bairro" value="Bairro:" />
+				<p:inputText id="bairro" maxlength="60" size="30"
+					value="#{clienteBean.cliente.bairro}" required="true"
+					requiredMessage="Campo 'Bairro' é de preenchimento obrigatório!" />
+
+				<p:outputLabel value="Complemento:" />
+				<p:inputText maxlength="60" size="30"
+					value="#{clienteBean.cliente.complemento}" required="true"
+					requiredMessage="Campo 'Complemento' é de preenchimento obrigatório!" />
+
+				<p:outputLabel for="estado" value="Estado" />
+				<p:selectOneMenu id="estado" filter="true"
+					value="#{clienteBean.cliente.estado}"
+					converter="omnifaces.SelectItemsConverter" required="true"
+					requiredMessage="Campo 'Estado' é de preenchimento obrigatório!">
+					<f:selectItem noSelectionOption="true"
+						itemLabel="Selecione um estado" />
+					<f:selectItems value="#{clienteBean.estados}" var="estado"
+						itemValue="#{estado}" itemLabel="#{estado.nome}" />
+						<p:ajax listener="#{clienteBean.popular}" update=":formCadastro:cidade"/>
+				</p:selectOneMenu>
+					
+				<p:outputLabel for="cidade" value="Cidade:" />
+				<p:selectOneMenu id="cidade" filter="true"
+					value="#{clienteBean.cliente.cidade}"
+					converter="omnifaces.SelectItemsConverter" required="true"
+					requiredMessage="Campo 'Cidade' é de preenchimento obrigatório!">
+					<f:selectItem noSelectionOption="true"
+						itemLabel="Selecione uma cidade" />
+					<f:selectItems value="#{clienteBean.cidades}" var="cidade"
+						itemValue="#{cidade}" itemLabel="#{cidade.nome}" />
+				</p:selectOneMenu>
+
+			</h:panelGrid>
+			<h:panelGrid columns="2">
+				<p:commandButton value="Salvar"
+					actionListener="#{clienteBean.salvar}"
+					update=":mensagem :formCadastro:painel :formLista:tabela" />
+				<p:commandButton value="Fechar"
+					oncomplete="PF('dlgCLientes').hide();"
+					update=":formCadastro:painel" />
+			</h:panelGrid>
+		</h:form>
+	</p:dialog>
+</h:body>
+</html>

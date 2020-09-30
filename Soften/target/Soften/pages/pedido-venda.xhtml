@@ -1,0 +1,508 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:p="http://primefaces.org/ui">
+<h:head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>Pedido de Venda</title>
+</h:head>
+<h:body>
+
+	<p:growl id="mensagem" />
+
+	<h:form id="formLista">
+
+	</h:form>
+
+	<h:form id="formCadastroPedidoVenda">
+
+		<div style="width: 100%; height: 10%;">
+
+			<p:panel style="height: 5%;">
+				<f:facet name="header">
+					<p:commandButton value="Cadastrar Novo Cliente"
+						oncomplete="PF('dlgCliente').show();"
+						actionListener="#{produtoBean.novo}"
+						update=":formCadastroCliente:painelCliente">
+						<f:actionListener
+							type="org.omnifaces.eventlistener.ResetInputAjaxActionListener" />
+					</p:commandButton>
+
+					<p:commandButton value="Cadastrar Novo Produto"
+						oncomplete="PF('dlgProduto').show();"
+						actionListener="#{produtoBean.novo}"
+						update=":formCadastroProduto:painelProduto">
+						<f:actionListener
+							type="org.omnifaces.eventlistener.ResetInputAjaxActionListener" />
+					</p:commandButton>
+
+					<p:commandButton value="Cadastrar Novo Pedido de Venda"
+						oncomplete="PF('dlgPedidoVenda').show();"
+						actionListener="#{pedidoVendaBean.novo}"
+						update=":formCadastroPedidoVenda:painelPedidoVenda">
+						<f:actionListener
+							type="org.omnifaces.eventlistener.ResetInputAjaxActionListener" />
+					</p:commandButton>
+
+					<p:commandButton value="Cancelar"
+						actionListener="#{produtoBean.novo}"
+						update=":formCadastroCliente:painelCliente">
+						<f:actionListener
+							type="org.omnifaces.eventlistener.ResetInputAjaxActionListener" />
+					</p:commandButton>
+
+				</f:facet>
+
+			</p:panel>
+
+			<p:panel header="Cadastrar" style="height:50%;">
+
+				<h:panelGrid id="painelPedidoVenda" border="1" columns="3"
+					style="width:100%; height:100%;">
+
+					<p:panel header="Inclusão" columns="1" style="height:100%;">
+
+						<h:panelGrid style="width:100%;">
+							<h:outputLabel for="cliente" value="Cliente:" />
+							<p:selectOneMenu id="cliente" filter="true"
+								value="#{pedidoVendaBean.pedidoVenda.cliente}"
+								converter="omnifaces.SelectItemsConverter" required="true"
+								requiredMessage="Campo 'Cliente' é de preenchimento obrigatório!">
+								<f:selectItem noSelectionOption="true"
+									itemLabel="Selecione um cliente" />
+								<f:selectItems value="#{pedidoVendaBean.clientes}" var="cliente"
+									itemValue="#{cliente}"
+									itemLabel="#{cliente.nomeRazaoSocial} - CPF: #{cliente.cpfCnpj}" />
+							</p:selectOneMenu>
+
+							<p:commandButton value="Salvar"
+								actionListener="#{pedidoVendaBean.salvar}"
+								update=":mensagem :formEdita:painelEdita :formCadastroPedidoVenda:tabelaCarrinho :formCadastroPedidoVenda:tabela" />
+							<p:commandButton value="Cancelar"
+								oncomplete="PF('dlgPedidoVenda').hide();"
+								update=":formEdita:painelEdita" />
+						</h:panelGrid>
+					</p:panel>
+
+					<p:panel header="Produtos" columns="1" style="height:100%;">
+
+						<h:panelGrid style="width:100%;">
+							<p:dataTable id="tabelaProdutos" paginator="true"
+								value="#{pedidoVendaBean.produtos}" var="produto" rows="5"
+								style="width: 100%;" selection="#{pedidoVendaBean.produto}"
+								rowKey="#{produto.id}" paginatorPosition="bottom">
+
+								<p:column selectionMode="single"
+									style="width:16px;text-align:center;" />
+
+								<p:column headerText="Nome" filterBy="#{produto.nome}"
+									sortBy="#{produto.nome}">
+									<h:outputText value="#{produto.nome}" />
+								</p:column>
+
+								<p:column headerText="Valor de Venda"
+									sortBy="#{produto.valorVenda}">
+									<h:outputText value="#{produto.valorVenda}">
+										<f:convertNumber locale="pt_BR" minFractionDigits="4" />
+									</h:outputText>
+								</p:column>
+
+								<f:facet name="footer">
+
+									<p:commandButton value="Inserir Produto(s)"
+										process="tabelaProdutos" style="margin-top:2px;"
+										actionListener="#{pedidoVendaBean.adicionaProduto}"
+										update=":mensagem :formCadastroPedidoVenda:tabelaCarrinho :formCadastroPedidoVenda:valorTotal">
+										<f:attribute name="produto" value="#{produto}" />
+									</p:commandButton>
+								</f:facet>
+
+							</p:dataTable>
+
+						</h:panelGrid>
+
+					</p:panel>
+
+					<p:panel header="Produtos Selecionados" columns="1"
+						style="height:100%;">
+
+						<h:panelGrid style="width:100%; height:100%;">
+							<p:dataTable id="tabelaCarrinho"
+								emptyMessage="Nenhum produto adicionado." paginator="true"
+								value="#{pedidoVendaBean.pedidoVendaItens}" var="vendaItem"
+								rows="5" style="width: 100%;"
+								selection="#{pedidoVendaBean.pedidoVendaItem}"
+								rowKey="#{vendaItem.id}" paginatorPosition="bottom">
+
+								<p:column selectionMode="single"
+									style="width:16px;text-align:center" />
+
+								<p:column headerText="Produto"
+									filterBy="#{vendaItem.produto.nome}"
+									sortBy="#{vendaItem.produto.nome}">
+									<h:outputText value="#{vendaItem.produto.nome}">
+										<f:convertNumber locale="pt_BR" minFractionDigits="4" />
+									</h:outputText>
+								</p:column>
+
+
+								<p:column headerText="Quantidade"
+									sortBy="#{vendaItem.quantidade}">
+									<h:outputText value="#{vendaItem.quantidade}">
+										<f:convertNumber locale="pt_BR" minFractionDigits="4" />
+									</h:outputText>
+								</p:column>
+
+								<p:column headerText="Valor Unitário"
+									sortBy="#{vendaItem.produto.valorVenda}">
+									<h:outputText value="#{vendaItem.produto.valorVenda}">
+										<f:convertNumber locale="pt_BR" minFractionDigits="4" />
+									</h:outputText>
+								</p:column>
+								
+								<p:column headerText="Valor Parcial"
+									sortBy="#{vendaItem.valorParcial}">
+									<h:outputText value="#{vendaItem.valorParcial}">
+										<f:convertNumber locale="pt_BR" minFractionDigits="4" />
+									</h:outputText>
+								</p:column>
+
+								<f:facet name="footer">
+									<p:commandButton value="Excluir Produto(s)"
+										process="tabelaCarrinho"
+										update=":mensagem :formCadastroPedidoVenda:tabelaCarrinho :formCadastroPedidoVenda:valorTotal"
+										style="margin-top:2px;"
+										actionListener="#{pedidoVendaBean.excluiProduto}">
+										<f:attribute name="pedidoVendaItem" value="#{vendaItem}" />
+									</p:commandButton>
+								</f:facet>
+
+							</p:dataTable>
+						</h:panelGrid>
+					</p:panel>
+
+				</h:panelGrid>
+
+				<p:panel header="Valor Total" style="height:100%;">
+					<h:panelGrid id="valorTotal" columns="3">
+						<p:outputLabel value="Total: R$ " />
+						<h:outputText value="#{pedidoVendaBean.pedidoVenda.valorTotal}">
+							<f:convertNumber locale="pt_BR" minFractionDigits="2" />
+						</h:outputText>
+					</h:panelGrid>
+				</p:panel>
+
+			</p:panel>
+			<p:panel header="Pedido de Venda - Listagem">
+				<p:dataTable id="tabela" emptyMessage="Nenhum registro encontrado."
+					paginator="true" value="#{pedidoVendaBean.pedidoVendas}"
+					var="pedidoVenda" rows="5"
+					paginatorTemplate="{CurrentPageReport}
+                {FirstPageLink}
+                {PreviousPageLink} {PageLinks}
+                {NextPageLink} {LastPageLink}
+                {RowsPerPageDropdown}"
+					currentPageReportTemplate="Exibindo {endRecord} registro(s) em um total de {totalRecords}"
+					rowsPerPageTemplate="5,10,15" style="width: 100%" lazy="true" paginatorPosition="bottom">
+
+					<p:column headerText="Cliente" sortBy="#{pedidoVenda.cliente.nomeRazaoSocial}"
+						filterBy="#{pedidoVenda.cliente.nomeRazaoSocial}">
+						<h:outputText value="#{pedidoVenda.cliente.nomeRazaoSocial}" />
+					</p:column>
+<!-- 
+					<p:column headerText="Produto" sortBy="#{pedidoVenda.produto}">
+						<h:outputText value="#{pedidoVenda.produto.nome}">
+							<f:convertNumber locale="pt_BR" minFractionDigits="4" />
+						</h:outputText>
+					</p:column>
+
+					<p:column headerText="Valor de Venda"
+						sortBy="#{pedidoVenda.quantidade}">
+						<h:outputText value="#{pedidoVenda.quantidade}">
+							<f:convertNumber locale="pt_BR" minFractionDigits="4" />
+						</h:outputText>
+					</p:column>
+ -->
+					<p:column headerText="Valor total"
+						sortBy="#{pedidoVenda.valorTotal}">
+						<h:outputText value="#{pedidoVenda.valorTotal}">
+							<f:convertNumber locale="pt_BR" minFractionDigits="4" />
+						</h:outputText>
+					</p:column>
+
+					<p:column headerText="Opções">
+
+						<p:commandButton icon="ui-icon-pencil"
+							actionListener="#{pedidoVendaBean.editar}"
+							update=":formEdita:painelEdita"
+							oncomplete="PF('dlgEdita').show();">
+							<f:attribute name="pedidoSelecionado" value="#{pedidoVenda}" />
+							<f:actionListener
+								type="org.omnifaces.eventlistener.ResetInputAjaxActionListener" />
+						</p:commandButton>
+						
+						<p:commandButton icon="ui-icon-trash"
+						actionListener="#{pedidoVendaBean.excluir}"
+						update=":mensagem :formCadastroPedidoVenda:tabela">
+						<p:confirm header="Confirmação"
+							message="Deseja excluir o usuario?" icon="ui-icon-alert" />
+						<f:attribute name="usuarioSelecionado" value="#{usuario}" />
+					</p:commandButton>
+
+					</p:column>
+				</p:dataTable>
+			</p:panel>
+		</div>
+	</h:form>
+	<p:dialog header="Cliente - Cadastro" widgetVar="dlgCliente"
+		draggable="false" resizable="false" modal="true" closable="false">
+		<h:form id="formCadastroCliente">
+			<h:panelGrid id="painelCliente" columns="2">
+
+				<p:outputLabel for="nomeRazaoSocial" value="Nome/Razão Social:" />
+				<p:inputText id="nomeRazaoSocial" maxlength="60" size="30"
+					value="#{clienteBean.cliente.nomeRazaoSocial}" required="true"
+					requiredMessage="Campo 'Nome/Razão Social' é de preenchimento obrigatório!" />
+
+				<p:outputLabel for="cpfCnpj" value="CPF/CNPJ:" />
+				<p:inputText id="cpfCnpj" maxlength="18" size="16"
+					value="#{clienteBean.cliente.cpfCnpj}" required="true"
+					requiredMessage="Campo 'CPF/CNPJ' é de preenchimento obrigatório!"
+					onkeypress='mascaraMutuario(this,cpfCnpj)' />
+
+				<p:outputLabel for="inscricaoEstadual" value="Inscrição Estadual:" />
+				<p:inputText id="inscricaoEstadual" maxlength="14" size="10"
+					value="#{clienteBean.cliente.inscricaoEstadual}" required="true"
+					requiredMessage="Campo 'Inscrição Estadual' é de preenchimento obrigatório!" />
+
+				<p:outputLabel for="cep" value="CEP:" />
+				<p:inputText id="cep" maxlength="8" size="6"
+					value="#{clienteBean.cliente.cep}" required="true"
+					requiredMessage="Campo 'CEP' é de preenchimento obrigatório!" />
+
+				<p:outputLabel for="logradouro" value="Logradouro:" />
+				<p:inputText id="logradouro" maxlength="60" size="30"
+					value="#{clienteBean.cliente.logradouro}" required="true"
+					requiredMessage="Campo 'Logradouro' é de preenchimento obrigatório!" />
+
+				<p:outputLabel for="numero" value="Número:" />
+				<p:inputText id="numero" maxlength="6" size="6"
+					value="#{clienteBean.cliente.numero}" required="true"
+					requiredMessage="Campo 'Número' é de preenchimento obrigatório!" />
+
+				<p:outputLabel for="bairro" value="Bairro:" />
+				<p:inputText id="bairro" maxlength="60" size="30"
+					value="#{clienteBean.cliente.bairro}" required="true"
+					requiredMessage="Campo 'Bairro' é de preenchimento obrigatório!" />
+
+				<p:outputLabel value="Complemento:" />
+				<p:inputText maxlength="60" size="30"
+					value="#{clienteBean.cliente.complemento}" required="true"
+					requiredMessage="Campo 'Complemento' é de preenchimento obrigatório!" />
+
+				<p:outputLabel for="estado" value="Estado" />
+				<p:selectOneMenu id="estado" filter="true"
+					value="#{clienteBean.cliente.estado}"
+					converter="omnifaces.SelectItemsConverter" required="true"
+					requiredMessage="Campo 'Estado' é de preenchimento obrigatório!">
+					<f:selectItem noSelectionOption="true"
+						itemLabel="Selecione um estado" />
+					<f:selectItems value="#{clienteBean.estados}" var="estado"
+						itemValue="#{estado}" itemLabel="#{estado.nome}" />
+					<p:ajax listener="#{clienteBean.popular}"
+						update=":formCadastroCliente:cidade" />
+				</p:selectOneMenu>
+
+				<p:outputLabel for="cidade" value="Cidade:" />
+				<p:selectOneMenu id="cidade" filter="true"
+					value="#{clienteBean.cliente.cidade}"
+					converter="omnifaces.SelectItemsConverter" required="true"
+					requiredMessage="Campo 'Cidade' é de preenchimento obrigatório!">
+					<f:selectItem noSelectionOption="true"
+						itemLabel="Selecione uma cidade" />
+					<f:selectItems value="#{clienteBean.cidades}" var="cidade"
+						itemValue="#{cidade}" itemLabel="#{cidade.nome}" />
+				</p:selectOneMenu>
+
+			</h:panelGrid>
+			<h:panelGrid columns="2">
+				<p:commandButton value="Salvar"
+					actionListener="#{clienteBean.salvar}"
+					update=":mensagem :formCadastroCliente:painelCliente :formCadastroPedidoVenda:tabela" />
+				<p:commandButton value="Fechar"
+					oncomplete="PF('dlgCliente').hide();"
+					update=":formCadastroCliente:painelCliente" />
+			</h:panelGrid>
+		</h:form>
+	</p:dialog>
+	<p:dialog header="Produto - Cadastro" widgetVar="dlgProduto"
+		draggable="false" resizable="false" modal="true" closable="false">
+		<h:form id="formCadastroProduto">
+			<h:panelGrid id="painelProduto" columns="2">
+
+				<p:outputLabel for="nome" value="Nome:" />
+				<p:inputText id="nome" maxlength="60" size="30"
+					value="#{produtoBean.produto.nome}" required="true"
+					requiredMessage="Campo 'Nome' é de preenchimento obrigatório!" />
+
+				<p:outputLabel for="valorCusto" value="Valor de Custo:" />
+				<p:inputText id="valorCusto" maxlength="15" size="10"
+					value="#{produtoBean.produto.valorCusto}" required="true"
+					requiredMessage="Campo 'Valor de Custo' é de preenchimento obrigatório!"
+					converterMessage="O valor informado no campo 'Valor de Custo' é inválido."
+					validatorMessage="Informe um valor entre 0 e 9999999999,9999 para o campo 'Valo de Custo'">
+					<f:validateDoubleRange minimum="0.01" maximum="9999999999.9999" />
+					<f:convertNumber locale="pt_BR" minFractionDigits="4" />
+				</p:inputText>
+
+				<p:outputLabel for="valorVenda" value="Valor de Venda:" />
+				<p:inputText id="valorVenda" maxlength="15" size="10"
+					value="#{produtoBean.produto.valorVenda}" required="true"
+					requiredMessage="Campo 'Valor de Venda' é de preenchimento obrigatório!"
+					converterMessage="O valor informado no campo 'Valor de Venda' é inválido."
+					validatorMessage="Informe um valor entre 0 e 9999999999,9999 para o campo 'Valo de Venda'">
+					<f:validateDoubleRange minimum="0.01" maximum="9999999999.9999" />
+					<f:convertNumber locale="pt_BR" minFractionDigits="4" />
+				</p:inputText>
+
+			</h:panelGrid>
+			<h:panelGrid columns="2">
+				<p:commandButton value="Salvar"
+					actionListener="#{produtoBean.salvar}"
+					update=":mensagem :formCadastroProduto:painelProduto :formCadastroPedidoVenda:tabela" />
+				<p:commandButton value="Fechar"
+					oncomplete="PF('dlgProduto').hide();"
+					update=":formCadastroProduto:painelProduto" />
+			</h:panelGrid>
+		</h:form>
+	</p:dialog>
+	<p:dialog header="Pedido de Venda - Cadastro"
+		widgetVar="dlgPedidoVenda" draggable="false" resizable="false"
+		modal="true" closable="false" style="width:550px; height:950px;">
+		<h:form id="form">
+			<h:panelGrid id="painelPedidoVenda" columns="8">
+
+				<h:outputLabel for="cliente" value="Cliente" />
+				<p:selectOneMenu id="cliente" filter="true"
+					value="#{pedidoVendaBean.pedidoVenda.cliente}"
+					converter="omnifaces.SelectItemsConverter" required="true"
+					requiredMessage="Campo 'Cliente' é de preenchimento obrigatório!">
+					<f:selectItem noSelectionOption="true"
+						itemLabel="Selecione um cliente" />
+					<f:selectItems value="#{pedidoVendaBean.clientes}" var="cliente"
+						itemValue="#{cliente}"
+						itemLabel="#{cliente.nomeRazaoSocial} - CPF: #{cliente.cpfCnpj}" />
+				</p:selectOneMenu>
+
+				<h:outputLabel for="menuProdutos" value="Produto(s):" />
+				<p:selectCheckboxMenu id="menuProdutos"
+					value="#{produtoBean.produtosSelecionados}" label="Produtos"
+					filter="true" filterMatchMode="startsWith" panelStyle="width:250px">
+					<f:selectItems value="#{produtoBean.produtos}" />
+				</p:selectCheckboxMenu>
+
+				<p:commandButton value="Inserir Produto(s)"
+					update=":displayItems :formCadastroPedidoVenda:tabelaProdutos"
+					oncomplete="PF('itemDialog').show()" style="margin-top:2px;" />
+
+			</h:panelGrid>
+			<p:panel header="Produtos">
+				<p:dataTable id="tabelaProdutos"
+					emptyMessage="Nenhum produto adicionado." paginator="true"
+					value="#{pedidoVendaBean.pedidoVendas}" var="pedidoVenda" rows="10"
+					style="width: 600px;">
+<!-- 
+					<p:column headerText="Produto" sortBy="#{pedidoVenda.produto}">
+						<h:outputText value="#{pedidoVenda.produto.nome}">
+							<f:convertNumber locale="pt_BR" minFractionDigits="4" />
+						</h:outputText>
+					</p:column>
+
+					<p:column headerText="Valor Unitário"
+						sortBy="#{pedidoVenda.quantidade}">
+						<h:outputText value="#{pedidoVenda.quantidade}">
+							<f:convertNumber locale="pt_BR" minFractionDigits="4" />
+						</h:outputText>
+					</p:column>
+ -->
+				</p:dataTable>
+				<p:panel header="Valor Total" columns="2">
+					<p:column headerText="Valor total"
+						sortBy="#{pedidoVenda.valorTotal}">
+						<h:outputText value="#{pedidoVenda.valorTotal}">
+							<f:convertNumber locale="pt_BR" minFractionDigits="4" />
+						</h:outputText>
+					</p:column>
+				</p:panel>
+
+			</p:panel>
+
+			<h:panelGrid columns="2">
+				<p:commandButton value="Salvar"
+					actionListener="#{produtoBean.salvar}"
+					update=":mensagem :formEdita:painelEdita :formCadastroPedidoVenda:tabela" />
+				<p:commandButton value="Fechar"
+					oncomplete="PF('dlgPedidoVenda').hide();"
+					update=":formEdita:painelEdita" />
+			</h:panelGrid>
+		</h:form>
+	</p:dialog>
+	<p:dialog header="Pedido venda - Edita" widgetVar="dlgEdita"
+		draggable="false" resizable="false" modal="true" closable="false">
+		<h:form id="formEdita">
+			<h:panelGrid id="painelEdita" columns="2">
+
+				<p:outputLabel for="nome" value="Nome:" />
+				<p:inputText id="nome" maxlength="60" size="30"
+					value="#{produtoBean.produto.nome}" required="true"
+					requiredMessage="Campo 'Nome' é de preenchimento obrigatório!" />
+
+				<p:outputLabel for="valorCusto" value="Valor de Custo:" />
+				<p:inputText id="valorCusto" maxlength="15" size="10"
+					value="#{produtoBean.produto.valorCusto}" required="true"
+					requiredMessage="Campo 'Valor de Custo' é de preenchimento obrigatório!"
+					converterMessage="O valor informado no campo 'Valor de Custo' é inválido."
+					validatorMessage="Informe um valor entre 0 e 9999999999,9999 para o campo 'Valo de Custo'">
+					<f:validateDoubleRange minimum="0.01" maximum="9999999999.9999" />
+					<f:convertNumber locale="pt_BR" minFractionDigits="4" />
+				</p:inputText>
+
+				<p:outputLabel for="valorVenda" value="Valor de Venda:" />
+				<p:inputText id="valorVenda" maxlength="15" size="10"
+					value="#{produtoBean.produto.valorVenda}" required="true"
+					requiredMessage="Campo 'Valor de Venda' é de preenchimento obrigatório!"
+					converterMessage="O valor informado no campo 'Valor de Venda' é inválido."
+					validatorMessage="Informe um valor entre 0 e 9999999999,9999 para o campo 'Valo de Venda'">
+					<f:validateDoubleRange minimum="0.01" maximum="9999999999.9999" />
+					<f:convertNumber locale="pt_BR" minFractionDigits="4" />
+				</p:inputText>
+
+			</h:panelGrid>
+			<h:panelGrid columns="2">
+				<p:commandButton value="Salvar"
+					actionListener="#{produtoBean.salvar}"
+					update=":mensagem :formEdita:painelEdita :formCadastroPedidoVenda:tabela" />
+				<p:commandButton value="Fechar" oncomplete="PF('dlgEdita').hide();"
+					update=":formEdita:painelEdita" />
+			</h:panelGrid>
+		</h:form>
+	</p:dialog>
+	<p:dialog header="Selecione os produtos" modal="true" showEffect="fade"
+		hideEffect="fade" widgetVar="itemDialog" width="250">
+		<p:outputPanel id="displayItems">
+
+			<p:dataList value="#{pedidoVendaBean.produto}" var="produto"
+				emptyMessage="Nenhum produto selecionado!"
+				style="margin-bottom: 10px;">
+				<f:facet name="header">
+                    Produtos
+                </f:facet>
+                #{produto}
+            </p:dataList>
+
+		</p:outputPanel>
+	</p:dialog>
+</h:body>
+</html>

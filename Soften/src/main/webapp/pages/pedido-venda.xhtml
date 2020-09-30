@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	template="/templates/modelo.xhtml">
+
+	<f:metadata>
+		<f:viewAction action="#{pedidoVendaBean.listar}"></f:viewAction>
+	</f:metadata>
+
+	<ui:define name="conteudo">
+
+		<h:form id="formCadastroPedidoVenda">
+
+			<p:panel header="Cadastrar">
+
+				<p:panel header="Cadastrar Pedido de Venda">
+
+					<f:facet name="header">
+						<p:commandButton value="Cancelar"
+							actionListener="#{autenticacaoBean.principal}">
+							<f:actionListener
+								type="org.omnifaces.eventlistener.ResetInputAjaxActionListener" />
+						</p:commandButton>
+					</f:facet>
+
+					<h:panelGrid id="painelPedidoVenda" border="1" columns="3"
+						style="width:100%; height:100%;">
+
+						<p:panel header="Cliente" columns="1" style="height:100%;">
+
+							<h:panelGrid style="width:100%;">
+								<h:outputLabel for="cliente" />
+								<p:selectOneMenu id="cliente" filter="true"
+									value="#{pedidoVendaBean.pedidoVenda.cliente}"
+									converter="omnifaces.SelectItemsConverter"
+									requiredMessage="Campo 'Cliente' é de preenchimento obrigatório!">
+									<f:selectItem noSelectionOption="true"
+										itemLabel="Selecione um cliente" />
+									<f:selectItems value="#{pedidoVendaBean.clientes}"
+										var="cliente" itemValue="#{cliente}"
+										itemLabel="#{cliente.nomeRazaoSocial} - CPF: #{cliente.cpfCnpj}" />
+								</p:selectOneMenu>
+
+								<p:commandButton value="Salvar"
+									actionListener="#{pedidoVendaBean.salvar}"
+									update=":mensagem :formCadastroPedidoVenda:tabela :formCadastroPedidoVenda:tabelaCarrinho :formCadastroPedidoVenda:valorTotal :formCadastroPedidoVenda:painelPedidoVenda" />
+
+							</h:panelGrid>
+						</p:panel>
+
+						<p:panel header="Produtos" columns="1" style="height:100%;">
+
+							<h:panelGrid style="width:100%;">
+								<p:dataTable id="tabelaProdutos"
+									emptyMessage="Nenhum registro encontrado." paginator="true"
+									value="#{pedidoVendaBean.produtos}" var="produto" rows="5"
+									style="width: 100%;" selection="#{pedidoVendaBean.produto}"
+									rowKey="#{produto.id}" paginatorPosition="bottom">
+
+									<p:column selectionMode="single"
+										style="width:16px;text-align:center;" />
+
+									<p:column headerText="Nome" filterBy="#{produto.nome}"
+										sortBy="#{produto.nome}">
+										<h:outputText value="#{produto.nome}" />
+									</p:column>
+
+									<p:column headerText="Valor de Venda"
+										sortBy="#{produto.valorVenda}">
+										<h:outputText value="#{produto.valorVenda}">
+											<f:convertNumber locale="pt_BR" minFractionDigits="4" />
+										</h:outputText>
+									</p:column>
+
+									<f:facet name="footer">
+
+										<p:commandButton value="Inserir Produto(s)"
+											process="tabelaProdutos" style="margin-top:2px;"
+											actionListener="#{pedidoVendaBean.adicionaProduto}"
+											update=":mensagem :formCadastroPedidoVenda:tabelaCarrinho :formCadastroPedidoVenda:valorTotal">
+											<f:attribute name="produto" value="#{produto}" />
+										</p:commandButton>
+									</f:facet>
+
+								</p:dataTable>
+
+							</h:panelGrid>
+
+						</p:panel>
+
+						<p:panel header="Produtos Selecionados" columns="1"
+							style="height:100%;">
+
+							<h:panelGrid style="width:100%; height:100%;">
+								<p:dataTable id="tabelaCarrinho"
+									emptyMessage="Nenhum produto adicionado." paginator="true"
+									value="#{pedidoVendaBean.pedidoVendaItensSelecionados}"
+									var="vendaItem" rows="5" style="width: 100%;"
+									selection="#{pedidoVendaBean.pedidoVendaItem}"
+									rowKey="#{vendaItem.id}" paginatorPosition="bottom">
+
+									<p:column selectionMode="single"
+										style="width:16px;text-align:center" />
+
+									<p:column headerText="Produto"
+										filterBy="#{vendaItem.produto.nome}"
+										sortBy="#{vendaItem.produto.nome}">
+										<h:outputText value="#{vendaItem.produto.nome}">
+											<f:convertNumber locale="pt_BR" minFractionDigits="4" />
+										</h:outputText>
+									</p:column>
+
+
+									<p:column headerText="Quantidade"
+										sortBy="#{vendaItem.quantidade}">
+										<h:outputText value="#{vendaItem.quantidade}">
+											<f:convertNumber locale="pt_BR" minFractionDigits="4" />
+										</h:outputText>
+									</p:column>
+
+									<p:column headerText="Valor Unitário"
+										sortBy="#{vendaItem.produto.valorVenda}">
+										<h:outputText value="#{vendaItem.produto.valorVenda}">
+											<f:convertNumber locale="pt_BR" minFractionDigits="4" />
+										</h:outputText>
+									</p:column>
+
+									<p:column headerText="Valor Total"
+										sortBy="#{vendaItem.valorParcial}">
+										<h:outputText value="#{vendaItem.valorParcial}">
+											<f:convertNumber locale="pt_BR" minFractionDigits="4" />
+										</h:outputText>
+									</p:column>
+
+									<f:facet name="footer">
+										<p:commandButton value="Excluir Produto(s)"
+											process="tabelaCarrinho"
+											update=":mensagem :formCadastroPedidoVenda:tabelaCarrinho :formCadastroPedidoVenda:valorTotal"
+											style="margin-top:2px;"
+											actionListener="#{pedidoVendaBean.excluiProduto}">
+											<f:attribute name="pedidoVendaItem" value="#{vendaItem}" />
+										</p:commandButton>
+									</f:facet>
+
+								</p:dataTable>
+							</h:panelGrid>
+						</p:panel>
+
+					</h:panelGrid>
+				</p:panel>
+
+				<p:panel header="Valor Total do Pedido" style="height:100%;">
+					<h:panelGrid id="valorTotal" columns="3">
+						<p:outputLabel value="Total: R$ " />
+						<h:outputText value="#{pedidoVendaBean.pedidoVenda.valorTotal}">
+							<f:convertNumber locale="pt_BR" minFractionDigits="2" />
+						</h:outputText>
+					</h:panelGrid>
+				</p:panel>
+
+			</p:panel>
+			<p:panel header="Pedido de Venda - Listagem">
+				<p:dataTable id="tabela" emptyMessage="Nenhum registro encontrado."
+					paginator="true" value="#{pedidoVendaBean.pedidoVendas}"
+					var="pedidoVenda" rows="5"
+					paginatorTemplate="{CurrentPageReport}
+                {FirstPageLink}
+                {PreviousPageLink} {PageLinks}
+                {NextPageLink} {LastPageLink}
+                {RowsPerPageDropdown}"
+					currentPageReportTemplate="Exibindo {endRecord} registro(s) em um total de {totalRecords}"
+					rowsPerPageTemplate="5,10,15" style="width: 100%" lazy="true"
+					paginatorPosition="bottom">
+
+					<p:column headerText="Cliente"
+						sortBy="#{pedidoVenda.cliente.nomeRazaoSocial}"
+						filterBy="#{pedidoVenda.cliente.nomeRazaoSocial}">
+						<h:outputText value="#{pedidoVenda.cliente.nomeRazaoSocial}" />
+					</p:column>
+
+					<p:column headerText="Produtos">
+						<p:dataList value="#{pedidoVenda.pedidoVendaItens}"
+							var="pedidoVendaItens">
+							#{pedidoVendaItens.produto.nome}
+						</p:dataList>
+					</p:column>
+
+					<p:column headerText="Quantidade">
+						<p:dataList value="#{pedidoVenda.pedidoVendaItens}"
+							var="pedidoVendaItens">
+							#{pedidoVendaItens.quantidade}
+						</p:dataList>
+					</p:column>
+
+					<p:column headerText="Valor Unitário">
+						<p:dataList value="#{pedidoVenda.pedidoVendaItens}"
+							var="pedidoVendaItens">
+							#{pedidoVendaItens.produto.valorVenda}								
+						</p:dataList>
+					</p:column>
+
+					<p:column headerText="Valor total"
+						sortBy="#{pedidoVenda.valorTotal}" style="width: 11%;">
+						<h:outputText value="#{pedidoVenda.valorTotal}">
+							<f:convertNumber locale="pt_BR" minFractionDigits="2" />
+						</h:outputText>
+					</p:column>
+
+					<p:column headerText="Opções" style="width:6%; text-align:center;"
+						rendered="#{autenticacaoBean.temPermissoes('Admin')}">
+
+						<p:commandButton icon="ui-icon-trash"
+							actionListener="#{pedidoVendaBean.excluir}"
+							update=":mensagem :formCadastroPedidoVenda:tabela :formCadastroPedidoVenda:painelPedidoVenda">
+							<p:confirm header="Confirmação"
+								message="Deseja excluir o pedido de venda?" icon="ui-icon-alert" />
+							<f:attribute name="pedidoVendaSelecionado" value="#{pedidoVenda}" />
+						</p:commandButton>
+
+					</p:column>
+				</p:dataTable>
+				<p:confirmDialog global="true">
+					<p:commandButton value="Sim" type="button"
+						styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
+					<p:commandButton value="Não" type="button"
+						styleClass="ui-confirmdialog-no" icon="ui-icon-close" />
+				</p:confirmDialog>
+			</p:panel>
+
+		</h:form>
+
+	</ui:define>
+</ui:composition>
